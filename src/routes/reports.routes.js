@@ -97,10 +97,7 @@ WHERE
         type: db.sequelize.QueryTypes.SELECT,
 
       });
-    data.forEach((e) => {
-      e.createdAt = moment(e.createdAt).format('YYYY-MM-DD hh:mm:ss A');
-      e.updatedAt = moment(e.updatedAt).format('YYYY-MM-DD hh:mm:ss A');
-    });
+
     res.status(200).json(data);
   } catch (error) {
     res.sendStatus(500);
@@ -221,6 +218,46 @@ WHERE
       e.createdAt = moment(e.createdAt).format('YYYY-MM-DD hh:mm:ss A');
       e.updatedAt = moment(e.updatedAt).format('YYYY-MM-DD hh:mm:ss A');
     });
+    res.status(200).json(data);
+  } catch (error) {
+    res.sendStatus(500);
+  }
+});
+
+router.post('/finance', async (req, res) => {
+  try {
+    const query = `(SELECT 
+    id,
+    'Trip allowance' AS t,
+    allowances AS amount,
+    DATE(createdAt) AS d
+FROM
+    db_fleet.trips
+WHERE
+    DATE(createdAt) >= DATE(:from)
+        AND DATE(createdAt) <= DATE(:to)
+        AND allowances > 0) UNION ALL (SELECT 
+    id,
+    'Maintenances job' AS t,
+    payment AS amount,
+    DATE(createdAt) AS d
+FROM
+    db_fleet.maintenances
+WHERE
+    DATE(createdAt) >= DATE(:from)
+        AND DATE(createdAt) <= DATE(:to)
+        AND payment > 0)`;
+    const data = await db.sequelize.query(query,
+      {
+        replacements: { from: req.body.from, to: req.body.to },
+        logging: true,
+        type: db.sequelize.QueryTypes.SELECT,
+
+      });
+    // data.forEach((e) => {
+    //   e.createdAt = moment(e.createdAt).format('YYYY-MM-DD hh:mm:ss A');
+    //   e.updatedAt = moment(e.updatedAt).format('YYYY-MM-DD hh:mm:ss A');
+    // });
     res.status(200).json(data);
   } catch (error) {
     res.sendStatus(500);
