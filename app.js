@@ -4,6 +4,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
+
 app.use(bodyParser.json());
 const morgan = require('morgan');
 const cors = require('cors');
@@ -13,8 +14,14 @@ app.use(cors());
 const Sequelize = require('sequelize');
 
 const env = process.env.NODE_ENV || 'development';
-const config = require('./config/config')[env];
+const cron = require('node-cron');
+const moment = require('moment');
+const fs = require('fs');
+const { spawn } = require('child_process');
 
+const wstream = fs.createWriteStream('dumpfilename.sql');
+const mysqldump = require('mysqldump');
+const config = require('./config/config')[env];
 // DB connection
 const sequelize = new Sequelize(config.database, config.username, config.password, {
   host: 'localhost',
@@ -55,6 +62,25 @@ app.use('/place', place);
 app.use('/trip', trip);
 app.use('/dashboard', dashboard);
 app.use('/maintenance', maintenance);
+
+function run(fileName) {
+  mysqldump({
+    connection: {
+      host: 'localhost',
+      user: 'root',
+      password: 'root',
+      database: 'db_fleet',
+    },
+    dumpToFile: `backups/${fileName}`,
+  });
+}
+
+cron.schedule('30 * * * *', () => {
+  console.log('cron job run');
+  const fileName = `${Date.now()}.sql`;
+  run(fileName);
+});
+
 
 app.use('/', (req, res) => {
   res.sendStatus(404);
