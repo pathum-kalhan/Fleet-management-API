@@ -23,7 +23,7 @@
     "mysql2": "^1.6.5",
     "mysqldump": "^3.1.0",
     "node-cron": "^2.0.3",
-    "sequelize": "^5.10.1",
+    "sequelize": "^5.15.1",
     "sequelize-cli": "^5.5.0"
   },
   "devDependencies": {
