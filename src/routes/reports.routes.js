@@ -254,10 +254,73 @@ WHERE
         type: db.sequelize.QueryTypes.SELECT,
 
       });
+
+
     // data.forEach((e) => {
     //   e.createdAt = moment(e.createdAt).format('YYYY-MM-DD hh:mm:ss A');
     //   e.updatedAt = moment(e.updatedAt).format('YYYY-MM-DD hh:mm:ss A');
     // });
+    res.status(200).json(data);
+  } catch (error) {
+    res.sendStatus(500);
+  }
+});
+
+
+router.post('/summaryR', async (req, res) => {
+  try {
+    const data = [];
+    const query1 = `SELECT 
+    COUNT(*) AS c
+FROM
+    db_fleet.audits
+WHERE
+    DATE(createdAt) >= DATE(:from)
+        AND DATE(createdAt) <= DATE(:to)
+GROUP BY userId;`;
+    const usersActive = await db.sequelize.query(query1,
+      {
+        replacements: { from: req.body.from, to: req.body.to },
+
+        type: db.sequelize.QueryTypes.SELECT,
+
+      });
+
+
+    console.log('users active', usersActive);
+    data.push({ type: 'Users active', value: usersActive[0].c });
+    const query2 = `SELECT 
+    COUNT(*) AS c
+FROM
+    db_fleet.trips
+WHERE
+    DATE(createdAt) >= DATE(:from)
+        AND DATE(createdAt) <= DATE(:to)`;
+    const tripCreated = await db.sequelize.query(query2,
+      {
+        replacements: { from: req.body.from, to: req.body.to },
+
+        type: db.sequelize.QueryTypes.SELECT,
+
+      });
+    console.log('trips created', tripCreated);
+    data.push({ type: 'Trips created', value: tripCreated[0].c });
+    const query3 = `SELECT 
+    COUNT(*) AS c
+FROM
+    db_fleet.trips
+WHERE
+    DATE(updatedAt) >= DATE(:from)
+        AND DATE(updatedAt) <= DATE(:to)`;
+    const tripsUpdated = await db.sequelize.query(query3,
+      {
+        replacements: { from: req.body.from, to: req.body.to },
+
+        type: db.sequelize.QueryTypes.SELECT,
+
+      });
+    console.log('trips updated', tripsUpdated);
+    data.push({ type: 'Trips updated', value: tripsUpdated[0].c });
     res.status(200).json(data);
   } catch (error) {
     res.sendStatus(500);
