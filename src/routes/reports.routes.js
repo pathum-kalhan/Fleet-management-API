@@ -18,10 +18,10 @@ FROM
     users ON audits.userId = users.id
 WHERE
     audits.userId IN (:ids)
-        AND DATE(audits.createdAt) >= DATE(:date)`;
+        AND DATE(audits.createdAt) >= DATE(:from) AND DATE(audits.createdAt) <= DATE(:to)`;
     const data = await db.sequelize.query(query,
       {
-        replacements: { ids: req.body.ids, date: req.body.date },
+        replacements: { ids: req.body.ids, from: req.body.from, to: req.body.to },
         type: db.sequelize.QueryTypes.SELECT,
         logging: true,
       });
@@ -87,12 +87,12 @@ FROM
     db_fleet.categories
 WHERE
     ${req.body.status === 'All' ? '' : `${req.body.status === 'Active' ? 'status = TRUE AND' : 'status = FALSE AND'}`}
-         DATE(createdAt) >= DATE(:date)
+         DATE(createdAt) >= DATE(:from) AND DATE(createdAt) <= DATE(:to)
         order by :order;`;
     //
     const data = await db.sequelize.query(query,
       {
-        replacements: { order: req.body.orderBy, date: req.body.dateFrom },
+        replacements: { order: req.body.orderBy, from: req.body.from, to: req.body.to },
         logging: true,
         type: db.sequelize.QueryTypes.SELECT,
 
