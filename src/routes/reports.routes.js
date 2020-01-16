@@ -107,12 +107,12 @@ WHERE
 router.post('/place', async (req, res) => {
   try {
     const query = `SELECT * FROM db_fleet.places where ${req.body.status === 'All' ? ''
-      : `${req.body.status === 'Active' ? 'status = TRUE AND' : 'status = FALSE AND'}`} DATE(createdAt) >= DATE(:date)`;
+      : `${req.body.status === 'Active' ? 'status = TRUE AND' : 'status = FALSE AND'}`} DATE(createdAt) >= DATE(:from) AND DATE(createdAt) <= DATE(:to)`;
 
     //
     const data = await db.sequelize.query(query,
       {
-        replacements: { order: req.body.orderBy, date: req.body.dateFrom },
+        replacements: { order: req.body.orderBy, from: req.body.from,to:req.body.to },
         logging: true,
         type: db.sequelize.QueryTypes.SELECT,
 
