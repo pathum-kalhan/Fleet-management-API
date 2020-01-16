@@ -136,13 +136,13 @@ FROM
 WHERE
     ${req.body.status === 'All' ? '' : `${req.body.status === 'petrol' ? 'status = "petrol" AND' : 'status = "diesel" AND'}`}
          categoryId IN (:ids)
-        AND DATE(createdAt) >= DATE(:date)`;
+        AND DATE(createdAt) >= DATE(:from) AND DATE(createdAt) <= DATE(:to)`;
 
 
     //
     const data = await db.sequelize.query(query,
       {
-        replacements: { order: req.body.orderBy, date: req.body.date, ids: req.body.ids },
+        replacements: { order: req.body.orderBy, from: req.body.from,to:req.body.to, ids: req.body.ids },
         logging: true,
         type: db.sequelize.QueryTypes.SELECT,
 
