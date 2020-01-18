@@ -52,6 +52,8 @@ const trip = require('./src/routes/trip.routes');
 const dashboard = require('./src/routes/dashboard.routes');
 const maintenance = require('./src/routes/maintenance.routes');
 const report = require('./src/routes/reports.routes');
+const backup = require('./src/routes/backup.routes');
+
 
 app.use('/reports', report);
 app.use('/user', user);
@@ -62,6 +64,8 @@ app.use('/place', place);
 app.use('/trip', trip);
 app.use('/dashboard', dashboard);
 app.use('/maintenance', maintenance);
+app.use('/backup', backup);
+
 
 function run(fileName) {
   mysqldump({
